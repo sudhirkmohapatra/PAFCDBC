@@ -1,0 +1,266 @@
+//importing pyton pakages for data analysis
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+//Importing the orginal dataset
+data= pd.read_csv('Tedda_Final_Thesis_AFCe.csv')
+//reading dataset
+data.head(10)
+data.info()
+//Deleting unwanted column/feature
+data_drop = data.drop(['dam_id'], axis=1)
+//Visualizing total number of null values in the dataset
+data.isna().sum()
+//visualizing unique values in each feature
+data_drop.nunique()
+//visualizing corelations between features
+sns.heatmap(data_drop.corr(), xticklabels=data_drop.corr().columns, yticklabels=data_drop.corr().columns, annot=True)
+//visualizing data distribution of dam's parity number feature
+sns.distplot(data_drop.dpn)
+//visualizing data distribution of calf birth weight feature
+sns.distplot(data_drop.calf_bw)
+//visualizing data distribution of calf average daily weight gain feature
+sns.distplot(data_drop.pw_adg)
+//visualizing data distribution of calf weaning age feature
+sns.distplot(data_drop.wa)
+//visualizing data distribution of calf weaning weight feature
+sns.distplot(data_drop.ww)
+//Handling null values
+data_drop['season'].fillna(data_drop['season'].value_counts().index[0], inplace=True)
+//Selecting independent variables
+x = data_drop.drop(['afc'], axis=1)
+//visualizing independent dataset
+x.head(10)
+//Assigning dependent variable to y variable
+y = data_drop['afc']
+//Reading dependent dataset
+y.head(10)
+//encoding season variable that contains non-numeric values
+season_dummies = pd.get_dummies(x.season)
+//integrating the encoded column into the original dataset
+x = pd.concat([x, season_dummies], axis=1)
+//encoding pre-weaning health variable that contains non-numeric values
+pw_health_dummies = pd.get_dummies(x.pw_health)
+//integrating the encoded column into the original dataset
+x = pd.concat([x, pw_health_dummies], axis=1)
+//excluding the encoded columns
+x = x.drop(['season','pw_health'], axis=1)
+//Visualizing the pre-processed data
+x.head(10)
+//Converting independent dataset into csv format
+x.to_csv('teda_independent1.csv')
+//Converting dependent dataset into csv format
+y.to_csv('teda_dependent1.csv')
+//Selecting best training and testing ratio for LinearSVR by ploting graph
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
+from sklearn.model_selection import learning_curve, GridSearchCV, KFold, RandomizedSearchCV
+from sklearn.svm import LinearSVR
+from sklearn import metrics
+range_test= [0.10,0.15,0.20,0.25,0.30,0.35,0.40]
+scores = {}
+scores_list1 = []
+scores_list2 = []
+for k in range_test:
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=k, random_state=42)
+    svr = SVR()
+    svr.fit(x_train, y_train)
+    y_pred = svr.predict(x_test)
+    scores_list1.append(svr.score(x_train, y_train))
+    scores_list2.append(svr.score(x_test, y_test))
+plt.plot(range_c, scores_list1, 'o-',color='b', label = "train score")
+plt.plot(range_c, scores_list2, 'o-',color='r', label = "Cross-Validation Score")
+plt.title("Accuracy with Different Training and Testing Ratio")
+plt.xlabel("Values of testing size")
+plt.ylabel("Accuracy of LinearSVR")
+plt.legend(loc="best")
+plt.show()
+//Model development using LinearSVR 
+svr = NuSVR()
+svr = svr.fit(x_train, y_train)
+prediction = svr.predict(x_test)
+//Model performance measurement of model developed with LinearSVR
+print('Mean squared error (MSE):', mean_squared_error(y_test, prediction))
+print('Root Mean squared error (MSE):', np.sqrt(mean_squared_error(y_test, prediction)))
+print('R_Squared:', r2_score(y_test, prediction))
+print('Mean absolute error (MAE):', mean_absolute_error(y_test, prediction))
+//Selecting best training and testing ratio for NuSVR by ploting graph
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
+from sklearn.model_selection import learning_curve, GridSearchCV, KFold, RandomizedSearchCV
+from sklearn.svm import NuSVR
+from sklearn import metrics
+range_test= [0.10,0.15,0.20,0.25,0.30,0.35,0.40]
+scores = {}
+scores_list1 = []
+scores_list2 = []
+for k in range_test:
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=k, random_state=42)
+    svr = SVR()
+    svr.fit(x_train, y_train)
+    y_pred = svr.predict(x_test)
+    scores_list1.append(svr.score(x_train, y_train))
+    scores_list2.append(svr.score(x_test, y_test))
+plt.plot(range_c, scores_list1, 'o-',color='b', label = "train score")
+plt.plot(range_c, scores_list2, 'o-',color='r', label = "Cross-Validation Score")
+plt.title("Accuracy with Different Training and Testing Ratio")
+plt.xlabel("Values of testing size")
+plt.ylabel("Accuracy of NuSVR")
+plt.legend(loc="best")
+plt.show()
+//Model development using NuSVR 
+svr = NuSVR()
+svr = svr.fit(x_train, y_train)
+prediction = svr.predict(x_test)
+//Model performance measurement of model developed with NuSVR
+print('Mean squared error (MSE):', mean_squared_error(y_test, prediction))
+print('Root Mean squared error (MSE):', np.sqrt(mean_squared_error(y_test, prediction)))
+print('R_Squared:', r2_score(y_test, prediction))
+print('Mean absolute error (MAE):', mean_absolute_error(y_test, prediction))
+//Selecting best training and testing ratio for SVR by ploting graph
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
+from sklearn.model_selection import learning_curve, GridSearchCV, KFold, RandomizedSearchCV
+from sklearn.svm import SVR
+from sklearn import metrics
+range_test= [0.10,0.15,0.20,0.25,0.30,0.35,0.40]
+scores = {}
+scores_list1 = []
+scores_list2 = []
+for k in range_test:
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=k, random_state=42)
+    svr = SVR()
+    svr.fit(x_train, y_train)
+    y_pred = svr.predict(x_test)
+    scores_list1.append(svr.score(x_train, y_train))
+    scores_list2.append(svr.score(x_test, y_test))
+plt.plot(range_c, scores_list1, 'o-',color='b', label = "train score")
+plt.plot(range_c, scores_list2, 'o-',color='r', label = "Cross-Validation Score")
+plt.title("Accuracy with Different Training and Testing Ratio")
+plt.xlabel("Values of testing size")
+plt.ylabel("Accuracy of SVR")
+plt.legend(loc="best")
+plt.show()
+//Ploting learning curve for SVR
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
+from sklearn.model_selection import learning_curve, GridSearchCV, KFold, RandomizedSearchCV
+from sklearn.svm import SVR
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.15,random_state=42)
+svr = SVR(C = 100, gamma = 0.1)
+svr = svr.fit(x_train, y_train)
+
+train_sizes, train_scores, test_scores = learning_curve(svr, x, y, n_jobs=-1, cv=10, scoring='r2', 
+                                                        train_sizes=np.linspace(0.1,1.0,50))
+train_mean = np.mean(train_scores,axis=1)
+train_std = np.std(train_scores, axis=1)
+test_mean = np.mean(test_scores,axis=1)
+test_std = np.std(test_scores, axis=1)
+plt.grid()
+plt.fill_between(train_sizes, train_mean + train_std, train_mean - train_std, color = "#DDDDDD")
+plt.fill_between(train_sizes, test_mean + test_std, test_mean - test_std, color = "#DDDDDD")
+plt.plot(train_sizes, train_mean, '-', color = "b", label = "train score")
+plt.plot(train_sizes, test_mean, '-', color = "r", label = "testing score")
+plt.title("Learning Curve of pretrained SVR model")
+plt.xlabel("Train Set Size")
+plt.ylabel("Accuracy Score")
+plt.legend(loc = "best")
+plt.tight_layout()
+plt.show()
+//Model development using SVR with linear Kernel value
+svr = SVR(kernel = 'linear')
+svr = svr.fit(x_train, y_train)
+prediction = svr.predict(x_test)
+//Model performance of model with linear kernel value
+print('Mean squared error (MSE):', mean_squared_error(y_test, prediction))
+print('Root Mean squared error (MSE):', np.sqrt(mean_squared_error(y_test, prediction)))
+print('R_Squared:', r2_score(y_test, prediction))
+print('Mean absolute error (MAE):', mean_absolute_error(y_test, prediction))
+//Model development using SVR with Polynomial Kernel value
+svr = SVR(kernel = 'poly')
+svr = svr.fit(x_train, y_train)
+prediction = svr.predict(x_test)
+//Model performance of model with polynomial kernel value
+print('Mean squared error (MSE):', mean_squared_error(y_test, prediction))
+print('Root Mean squared error (MSE):', np.sqrt(mean_squared_error(y_test, prediction)))
+print('R_Squared:', r2_score(y_test, prediction))
+print('Mean absolute error (MAE):', mean_absolute_error(y_test, prediction))
+//Model development using SVR with rbf Kernel value
+svr = SVR(kernel = 'rbf')
+svr = svr.fit(x_train, y_train)
+prediction = svr.predict(x_test)
+//Model performance measurement of model with rbf kernel value
+print('Mean squared error (MSE):', mean_squared_error(y_test, prediction))
+print('Root Mean squared error (MSE):', np.sqrt(mean_squared_error(y_test, prediction)))
+print('R_Squared:', r2_score(y_test, prediction))
+print('Mean absolute error (MAE):', mean_absolute_error(y_test, prediction))
+//Selecting best C-parameter value by ploting a graph
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
+from sklearn.model_selection import learning_curve, GridSearchCV, KFold, RandomizedSearchCV
+from sklearn.svm import SVR
+from sklearn import metrics
+range_c= [0.1, 1.0, 10, 100, 1000]
+scores = {}
+scores_list1 = []
+scores_list2 = []
+for k in range_c:
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.15, random_state=42)
+    svr = SVR(kernel = 'rbf', gamma=0.1, C = k)
+    svr.fit(x_train, y_train)
+    y_pred = svr.predict(x_test)
+    scores_list1.append(svr.score(x_train, y_train))
+    scores_list2.append(svr.score(x_test, y_test))
+plt.plot(range_c, scores_list1, 'o-',color='b', label = "train score")
+plt.plot(range_c, scores_list2, 'o-',color='r', label = "test score")
+plt.title("Accuracy with Different Regularization parameter values")
+plt.xlabel("Values of C parameter")
+plt.ylabel("Accuracy of SVR")
+plt.legend(loc="best")
+plt.show()
+//Model development using SVR with selected Kernel and C-parameter values
+svr = SVR(kernel = 'rbf', C=100)
+svr = svr.fit(x_train, y_train)
+prediction = svr.predict(x_test)
+//Model performance measurement of model with selected kernel and C-parameter values
+print('Mean squared error (MSE):', mean_squared_error(y_test, prediction))
+print('Root Mean squared error (MSE):', np.sqrt(mean_squared_error(y_test, prediction)))
+print('R_Squared:', r2_score(y_test, prediction))
+print('Mean absolute error (MAE):', mean_absolute_error(y_test, prediction))
+//Selecting best gamma value by ploting a graph
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
+from sklearn.model_selection import learning_curve, GridSearchCV, KFold, RandomizedSearchCV
+from sklearn.svm import SVR
+from sklearn import metrics
+range_gamma= [1, 0.1, 0.01, 0.001]
+scores = {}
+scores_list1 = []
+scores_list2 = []
+for k in range_c:
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.15, random_state=42)
+    svr = SVR(kernel = 'rbf', gamma=k, C = 100)
+    svr.fit(x_train, y_train)
+    y_pred = svr.predict(x_test)
+    scores_list1.append(svr.score(x_train, y_train))
+    scores_list2.append(svr.score(x_test, y_test))
+plt.plot(range_c, scores_list1, 'o-',color='b', label = "train score")
+plt.plot(range_c, scores_list2, 'o-',color='r', label = "test score")
+plt.title("Accuracy with Different gamma parameter values")
+plt.xlabel("Values of gamma parameter")
+plt.ylabel("Accuracy of SVR")
+plt.legend(loc="best")
+plt.show()
+//Model development with best selected hyperparameters values (Kernel, C-parameter and gamma Values)
+svr = SVR(kernel = 'rbf', gamma=0.1, C = 100)
+svr = svr.fit(x_train, y_train)
+//Mesuring test accuracy of model with selected hyperparameters
+svr.score(x_test, y_test)
+//Mesuring train accuracy of model with selected hyperparameters
+svr.score(x_train, y_train)
+//Measuring model accuracy developed with selected hyperparameters
+print('Mean squared error (MSE):', mean_squared_error(y_test, prediction))
+print('Root Mean squared error (MSE):', np.sqrt(mean_squared_error(y_test, prediction)))
+print('R_Squared:', r2_score(y_test, prediction))
+print('Mean absolute error (MAE):', mean_absolute_error(y_test, prediction))
